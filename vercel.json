@@ -3,6 +3,6 @@
   "outputDirectory": "frontend/dist",
   "framework": "vite",
   "env": {
-    "VITE_API_URL": "@brandforge-api-url"
+    "VITE_API_URL": "https://brandforge-api-exxq.onrender.com"
   }
 }
