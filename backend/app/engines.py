@@ -190,15 +190,15 @@ class DiscoveryEngine:
 
         # Look for specific context patterns first
         if "college students" in text_lower and "hackathons" in text_lower:
-            return "College students struggle to find teammates for hackathons"
+            return "Struggle to find teammates for hackathons"
         if "students" in text_lower and "hackathons" in text_lower:
-            return "Students struggle to find teammates for hackathons"
+            return "Struggle to find teammates for hackathons"
         if "find teammates" in text_lower:
             return "Difficulty finding teammates"
         if "collaboration" in text_lower:
             return "Difficulty in effective collaboration"
         if "women" in text_lower and "career" in text_lower and "break" in text_lower:
-            return "Women restarting careers after a break struggle to find job opportunities and support"
+            return "Difficulty finding job opportunities and support after career break"
         if "restarting their careers" in text_lower:
             return "Difficulty finding job opportunities and support after career break"
         if "food waste" in text_lower:
@@ -206,11 +206,11 @@ class DiscoveryEngine:
         if "farmers" in text_lower and "consumers" in text_lower:
             return "Difficulty connecting farmers directly with consumers"
         if "marketplace" in text_lower and "farm" in text_lower:
-            return "Lack of direct access to sustainable farm produce for households"
+            return "Lack of direct access to sustainable farm produce"
         if "farm produce" in text_lower and "households" in text_lower:
-            return "Households lack direct access to sustainable farm produce"
+            return "Lack of direct access to sustainable farm produce"
         if "households" in text_lower and "farm" in text_lower:
-            return "Households lack direct access to sustainable farm produce"
+            return "Lack of direct access to sustainable farm produce"
 
         # Look for explicit problem statements
         for pattern in self.problem_patterns:
@@ -247,11 +247,11 @@ class DiscoveryEngine:
         if "consumers" in text_lower:
             return "Local consumers"
         if "households" in text_lower:
-            return "Households and local consumers"
+            return "Households"
         if "marketplace" in text_lower and "farm" in text_lower:
-            return "Farmers and local households"
-        if "households" in text_lower and "farm" in text_lower:
-            return "Households and farmers"
+            return "Farmers and households"
+        if "farm" in text_lower and "households" in text_lower:
+            return "Farmers and households"
 
         # Look for "connects X with Y" patterns
         connect_pattern = r"connects?\s+([^.!?]+?)\s+(?:with|to)\s+([^.!?]+?)(?:\s+(?:to|for)|$)"
@@ -600,15 +600,20 @@ class PositioningEngine:
     def generate_positioning_statement(self, category: str, audience: str, problem: str, differentiator: str) -> str:
         """Generate a complete positioning statement."""
         # Template: For [target audience] who [problem], [brand] is a [category] that [differentiator].
-        # Simplify problem text to avoid repetition
+        # Simplify problem text to avoid repetition with audience
         problem_clean = problem
 
-        # Remove audience name from start of problem if present
-        audience_first_word = audience.lower().split()[0] if audience else ""
-        if audience_first_word and problem_clean.lower().startswith(audience_first_word):
-            problem_clean = problem_clean[len(audience_first_word):].strip()
-            # Remove common connecting words
-            problem_clean = re.sub(r'^(who|that|which|experiencing)\s*', '', problem_clean, flags=re.IGNORECASE)
+        # Remove audience words from problem
+        audience_words = audience.lower().split()
+        for word in audience_words:
+            if word in problem_clean.lower():
+                # Remove this word and clean up
+                problem_clean = re.sub(r'\b' + re.escape(word) + r'\b', '', problem_clean, flags=re.IGNORECASE).strip()
+                # Remove double spaces
+                problem_clean = re.sub(r'\s+', ' ', problem_clean)
+
+        # Clean up leading words
+        problem_clean = re.sub(r'^(who|that|which|experiencing)\s*', '', problem_clean, flags=re.IGNORECASE)
 
         return f"For {audience[:60]} who {problem_clean[:80]}, this is a {category} that {differentiator[:100]}."
 
