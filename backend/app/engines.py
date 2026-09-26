@@ -593,28 +593,22 @@ class PositioningEngine:
         # Fix grammar - ensure proper preposition
         if benefit.lower().startswith("focus on"):
             return f"{action} {audience[:50]} with {benefit[:100]}"
+        if benefit.lower().startswith("direct"):
+            return f"{action} {audience[:50]} with {benefit[:100]}"
         return f"{action} {audience[:50]} to {benefit[:100]}"
 
     def generate_positioning_statement(self, category: str, audience: str, problem: str, differentiator: str) -> str:
         """Generate a complete positioning statement."""
         # Template: For [target audience] who [problem], [brand] is a [category] that [differentiator].
-        # Clean up the problem text to avoid repetition with audience
+        # Simplify problem text to avoid repetition
         problem_clean = problem
 
-        # If problem starts with audience name, remove it
-        audience_words = audience.lower().split()
-        if audience_words:
-            first_word = audience_words[0]
-            if problem_clean.lower().startswith(first_word):
-                problem_clean = problem_clean[len(first_word):].strip()
-                # Remove connecting words that might follow
-                problem_clean = re.sub(r'^(who|that|which|experiencing|struggle)\s*', '', problem_clean, flags=re.IGNORECASE)
-
-        # Standardize problem phrasing
-        if "struggle to" in problem_clean.lower():
-            problem_clean = problem_clean.lower().replace("struggle to", "face challenges")
-        if "lack of" in problem_clean.lower():
-            problem_clean = problem_clean.lower().replace("lack of", "face challenges accessing")
+        # Remove audience name from start of problem if present
+        audience_first_word = audience.lower().split()[0] if audience else ""
+        if audience_first_word and problem_clean.lower().startswith(audience_first_word):
+            problem_clean = problem_clean[len(audience_first_word):].strip()
+            # Remove common connecting words
+            problem_clean = re.sub(r'^(who|that|which|experiencing)\s*', '', problem_clean, flags=re.IGNORECASE)
 
         return f"For {audience[:60]} who {problem_clean[:80]}, this is a {category} that {differentiator[:100]}."
 
