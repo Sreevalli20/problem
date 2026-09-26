@@ -304,12 +304,16 @@ class DiscoveryEngine:
             return "Specialized for hackathon context"
         if "women" in text_lower and "career" in text_lower:
             return "Specialized support for women restarting careers"
-        if "support" in text_lower:
-            return "Focus on support and community"
         if "farmers" in text_lower and "directly" in text_lower:
             return "Direct farmer-to-consumer connections"
         if "marketplace" in text_lower and "local" in text_lower:
             return "Local, direct-to-consumer marketplace model"
+        if "marketplace" in text_lower and "farm" in text_lower:
+            return "Direct farmer-to-consumer marketplace"
+        if "cutting out middlemen" in text_lower:
+            return "Direct connections cutting out middlemen"
+        if "fair prices" in text_lower:
+            return "Ensures fair prices for producers"
 
         # Fallback
         diff_words = ["different", "unique", "better", "unlike", "advantage"]
@@ -380,12 +384,19 @@ class DiscoveryEngine:
 
         # Extract motivations (look for why/because patterns)
         motivations = "Not explicitly specified"
-        motivation_patterns = [r"(?:because|why|motivated by|inspired by)\s+([^.!?]+)"]
+        motivation_patterns = [
+            r"(?:because|why|motivated by|inspired by)\s+([^.!?]+)",
+            r"(?:want to|want)\s+([^.!?]+?)(?:\s+(?:to|and|for)|$)",
+            r"(?:impact|create|help)\s+([^.!?]+?)(?:\s+(?:and|by|through)|$)"
+        ]
         for pattern in motivation_patterns:
             matches = re.findall(pattern, combined_text, re.IGNORECASE)
             if matches:
-                motivations = matches[0].strip()
-                break
+                # Filter out questions like "why would someone"
+                candidate = matches[0].strip()
+                if not any(q in candidate.lower() for q in ["would someone", "choose your", "solution over"]):
+                    motivations = candidate
+                    break
 
         # Extract alternatives
         alternatives = "Not explicitly specified"
@@ -575,12 +586,33 @@ class PositioningEngine:
         action = "Enables" if "collaboration" in problem.lower() else "Provides"
         benefit = differentiators if differentiators != "Differentiation not clearly specified" else "solves core challenges"
 
+        # Fix grammar - ensure proper preposition
+        if benefit.lower().startswith("focus on"):
+            return f"{action} {audience[:50]} with {benefit[:100]}"
         return f"{action} {audience[:50]} to {benefit[:100]}"
 
     def generate_positioning_statement(self, category: str, audience: str, problem: str, differentiator: str) -> str:
         """Generate a complete positioning statement."""
         # Template: For [target audience] who [problem], [brand] is a [category] that [differentiator].
-        return f"For {audience[:60]} who {problem[:80]}, this is a {category} that {differentiator[:100]}."
+        # Clean up the problem text to avoid repetition with audience
+        problem_clean = problem
+
+        # If problem starts with audience name, remove it
+        audience_words = audience.lower().split()
+        if audience_words:
+            first_word = audience_words[0]
+            if problem_clean.lower().startswith(first_word):
+                problem_clean = problem_clean[len(first_word):].strip()
+                # Remove connecting words that might follow
+                problem_clean = re.sub(r'^(who|that|which|experiencing|struggle)\s*', '', problem_clean, flags=re.IGNORECASE)
+
+        # Standardize problem phrasing
+        if "struggle to" in problem_clean.lower():
+            problem_clean = problem_clean.lower().replace("struggle to", "face challenges")
+        if "lack of" in problem_clean.lower():
+            problem_clean = problem_clean.lower().replace("lack of", "face challenges accessing")
+
+        return f"For {audience[:60]} who {problem_clean[:80]}, this is a {category} that {differentiator[:100]}."
 
     def run(self, discovery: DiscoveryOutput, audience: AudienceOutput) -> PositioningOutput:
         """Run positioning analysis."""
@@ -1452,7 +1484,12 @@ class LaunchKitEngine:
 
     def generate_about_section(self, discovery: DiscoveryOutput, positioning: PositioningOutput) -> str:
         """Generate about section."""
-        return f"We're building {positioning.category} to {discovery.problem.lower()}. Our mission is to {positioning.value_proposition.lower()}."
+        # Fix grammar - remove "to" if problem already includes "to"
+        problem_text = discovery.problem.lower()
+        if problem_text.startswith("to "):
+            problem_text = problem_text[3:]
+
+        return f"We're building {positioning.category} to {problem_text}. Our mission is to {positioning.value_proposition.lower()}."
 
     def generate_product_description(self, positioning: PositioningOutput, audience: AudienceOutput) -> str:
         """Generate product description."""
@@ -1460,7 +1497,12 @@ class LaunchKitEngine:
 
     def generate_founder_pitch(self, discovery: DiscoveryOutput, positioning: PositioningOutput) -> str:
         """Generate founder pitch."""
-        return f"I'm building {positioning.category} because {discovery.motivations.lower() if discovery.motivations else 'I care about this problem'}. {positioning.value_proposition}"
+        # Clean up motivations - filter out questions
+        motivations = discovery.motivations
+        if motivations and any(q in motivations.lower() for q in ["would someone", "choose your", "solution over"]):
+            motivations = "I care about this problem"
+
+        return f"I'm building {positioning.category} because {motivations.lower() if motivations else 'I care about this problem'}. {positioning.value_proposition}"
 
     def generate_elevator_pitch(self, positioning: PositioningOutput) -> str:
         """Generate elevator pitch."""
