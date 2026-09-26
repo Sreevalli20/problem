@@ -36,7 +36,7 @@ export default function StartPage({ onProjectCreate }: StartPageProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-12">
           <h1 className="text-6xl font-bold text-white mb-4 tracking-tight">

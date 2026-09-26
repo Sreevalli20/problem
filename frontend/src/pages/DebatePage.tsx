@@ -31,7 +31,7 @@ export default function DebatePage({ project }: DebatePageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-white text-xl">Loading brand debate...</div>
       </div>
     );
@@ -39,7 +39,7 @@ export default function DebatePage({ project }: DebatePageProps) {
 
   if (error || !debateData) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-red-400 text-xl">{error || "No data available"}</div>
       </div>
     );
@@ -59,7 +59,7 @@ export default function DebatePage({ project }: DebatePageProps) {
   };
 
   return (
-    <div className="min-h-screen px-4 py-8">
+    <div className="min-h-screen px-4 py-8 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Brand Debate</h1>
