@@ -31,7 +31,7 @@ export default function ConsistencyPage({ project }: ConsistencyPageProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-white text-xl">Loading consistency analysis...</div>
       </div>
     );
@@ -39,7 +39,7 @@ export default function ConsistencyPage({ project }: ConsistencyPageProps) {
 
   if (error || !consistencyData) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="text-red-400 text-xl">{error || "No data available"}</div>
       </div>
     );
@@ -72,7 +72,7 @@ export default function ConsistencyPage({ project }: ConsistencyPageProps) {
   };
 
   return (
-    <div className="min-h-screen px-4 py-8 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Consistency Guardian</h1>
