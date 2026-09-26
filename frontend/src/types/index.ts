@@ -1,27 +1,3 @@
-export const InterviewStage = {
-  INITIAL: "initial",
-  AUDIENCE: "audience",
-  PROBLEM: "problem",
-  CONTEXT: "context",
-  ALTERNATIVES: "alternatives",
-  DIFFERENTIATION: "differentiation",
-  MOTIVATION: "motivation",
-  EMOTION: "emotion",
-  BRAND_CHARACTER: "brand_character",
-  CONSTRAINTS: "constraints",
-  COMPLETE: "complete"
-} as const;
-
-export type InterviewStage = typeof InterviewStage[keyof typeof InterviewStage];
-
-export interface InterviewMessage {
-  id: string;
-  role: string;
-  content: string;
-  timestamp: string;
-  stage?: InterviewStage;
-}
-
 export interface Project {
   id: string;
   initial_idea: string;
@@ -29,6 +5,25 @@ export interface Project {
   current_stage: InterviewStage;
   created_at: string;
   updated_at: string;
+}
+
+export interface InterviewMessage {
+  id: string;
+  role: 'user' | 'system' | 'assistant';
+  content: string;
+  stage: InterviewStage;
+}
+
+export enum InterviewStage {
+  INITIAL = 'INITIAL',
+  AUDIENCE = 'AUDIENCE',
+  POSITIONING = 'POSITIONING',
+  PERSONALITY = 'PERSONALITY',
+  CREATIVE = 'CREATIVE',
+  CRITIQUE = 'CRITIQUE',
+  DEBATE = 'DEBATE',
+  CONSISTENCY = 'CONSISTENCY',
+  COMPLETE = 'COMPLETE'
 }
 
 export interface DiscoveryOutput {
@@ -47,7 +42,7 @@ export interface DiscoveryOutput {
 
 export interface AudienceOutput {
   primary_audience: string;
-  secondary_audience: string | null;
+  secondary_audience?: string;
   needs: string[];
   pain_points: string[];
   motivations: string[];
@@ -187,10 +182,4 @@ export interface LaunchKitOutput {
   brand_voice_examples: string[];
   do_messaging: string[];
   dont_messaging: string[];
-}
-
-export interface WorkflowStage {
-  name: string;
-  status: "idle" | "running" | "completed" | "failed";
-  data?: any;
 }
