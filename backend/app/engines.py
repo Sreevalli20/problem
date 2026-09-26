@@ -188,7 +188,7 @@ class DiscoveryEngine:
         """Extract the problem being solved."""
         text_lower = text.lower()
 
-        # Look for specific context patterns first
+        # Look for specific context patterns first - return clean problems without audience
         if "college students" in text_lower and "hackathons" in text_lower:
             return "Struggle to find teammates for hackathons"
         if "students" in text_lower and "hackathons" in text_lower:
@@ -216,7 +216,14 @@ class DiscoveryEngine:
         for pattern in self.problem_patterns:
             matches = re.findall(pattern, text, re.IGNORECASE)
             if matches:
-                return matches[0].strip()
+                result = matches[0].strip()
+                # Remove audience words from problem
+                audience_words = ["college students", "students", "farmers", "households", "consumers", "women"]
+                for word in audience_words:
+                    if result.lower().startswith(word):
+                        result = result[len(word):].strip()
+                        result = re.sub(r'^(who|that|which)\s*', '', result, flags=re.IGNORECASE)
+                return result if result else "Problem not clearly specified"
 
         # Look for "find" patterns
         find_pattern = r"find\s+([^.!?]+?)(?:\s+(?:for|teammates|partners)|$)"
@@ -224,7 +231,12 @@ class DiscoveryEngine:
         if find_matches:
             return f"Difficulty finding {find_matches[0].strip()}"
 
-        # Fallback
+        # Fallback - look for struggle/difficulty patterns
+        struggle_pattern = r"(?:struggle|difficulty|hard to|challenging)\s+([^.!?]+)"
+        struggle_matches = re.findall(struggle_pattern, text, re.IGNORECASE)
+        if struggle_matches:
+            return f"Struggle to {struggle_matches[0].strip()}"
+
         return "Problem not clearly specified in input"
 
     def extract_audience(self, text: str) -> str:
