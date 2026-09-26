@@ -18,7 +18,7 @@ import type {
   ConsistencyCheck
 } from "../types";
 
-const API_URL = "https://brandforge-api-exxq.onrender.com";
+const API_URL = "https://brandforge-api-exxq.onrender.com/";
 
 class ApiService {
   private baseUrl: string;
