@@ -371,6 +371,8 @@ class DiscoveryEngine:
     def run(self, messages: List[InterviewMessage]) -> DiscoveryOutput:
         """Run discovery analysis on interview messages."""
         combined_text = " ".join([msg.content for msg in messages])
+        # Extract only user messages for motivation extraction
+        user_text = " ".join([msg.content for msg in messages if msg.role == "user"])
 
         product_concept = self.extract_concept(combined_text)
         problem = self.extract_problem(combined_text)
@@ -382,19 +384,21 @@ class DiscoveryEngine:
         # Extract context (everything else)
         context = combined_text[:500] if len(combined_text) > 500 else combined_text
 
-        # Extract motivations (look for why/because patterns)
+        # Extract motivations (look for why/because patterns in user messages only)
         motivations = "Not explicitly specified"
         motivation_patterns = [
             r"(?:because|why|motivated by|inspired by)\s+([^.!?]+)",
             r"(?:want to|want)\s+([^.!?]+?)(?:\s+(?:to|and|for)|$)",
-            r"(?:impact|create|help)\s+([^.!?]+?)(?:\s+(?:and|by|through)|$)"
+            r"(?:impact|create|help)\s+([^.!?]+?)(?:\s+(?:and|by|through)|$)",
+            r"(?:i|i'm|i am)\s+(?:want to|want)\s+([^.!?]+)"
         ]
         for pattern in motivation_patterns:
-            matches = re.findall(pattern, combined_text, re.IGNORECASE)
+            matches = re.findall(pattern, user_text, re.IGNORECASE)
             if matches:
-                # Filter out questions like "why would someone"
+                # Filter out questions and system text
                 candidate = matches[0].strip()
-                if not any(q in candidate.lower() for q in ["would someone", "choose your", "solution over"]):
+                question_phrases = ["would someone", "choose your", "solution over", "are you", "personally motivated"]
+                if not any(q in candidate.lower() for q in question_phrases):
                     motivations = candidate
                     break
 
