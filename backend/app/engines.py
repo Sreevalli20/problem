@@ -209,6 +209,8 @@ class DiscoveryEngine:
             return "Lack of direct access to sustainable farm produce for households"
         if "farm produce" in text_lower and "households" in text_lower:
             return "Households lack direct access to sustainable farm produce"
+        if "households" in text_lower and "farm" in text_lower:
+            return "Households lack direct access to sustainable farm produce"
 
         # Look for explicit problem statements
         for pattern in self.problem_patterns:
@@ -248,6 +250,8 @@ class DiscoveryEngine:
             return "Households and local consumers"
         if "marketplace" in text_lower and "farm" in text_lower:
             return "Farmers and local households"
+        if "households" in text_lower and "farm" in text_lower:
+            return "Households and farmers"
 
         # Look for "connects X with Y" patterns
         connect_pattern = r"connects?\s+([^.!?]+?)\s+(?:with|to)\s+([^.!?]+?)(?:\s+(?:to|for)|$)"
